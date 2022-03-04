@@ -21,7 +21,6 @@ module "aws_transit_eu_1" {
   tags = {
     Owner = "pkonitz"
   }
-
 }
 
 
@@ -30,11 +29,27 @@ resource "aviatrix_transit_gateway_peering" "peering_ali1_aws1" {
   transit_gateway_name2 = module.ali_transit_eu_1.transit_gateway.gw_name
 }
 
-# module "transit-peering-eu-2" {
-#   source           = "terraform-aviatrix-modules/mc-transit-peering/aviatrix"
-#   transit_gateways = [module.ali_transit_eu_1.transit_gateway.gw_name, module.aws_transit_eu_1.transit_gateway.gw_name]
-#   depends_on       = [module.ali_transit_eu_1, module.aws_transit_eu_1]
-# }
+resource "aviatrix_transit_external_device_conn" "Alibaba-UK-to-CN-CEN" {
+  vpc_id                    = module.ali_transit_eu_1.vpc.vpc_id
+  connection_name           = "Alibaba-london-to-beijing-CEN"
+  gw_name                   = module.ali_transit_eu_1.transit_gateway.gw_name
+  connection_type           = "bgp"
+  direct_connect            = true
+  backup_direct_connect     = true
+  remote_gateway_ip         = module.ali_transit_cn_1.transit_gateway.private_ip
+  backup_remote_gateway_ip  = module.ali_transit_cn_1.transit_gateway.ha_private_ip
+  bgp_local_as_num          = "65101"
+  bgp_remote_as_num         = "65201"
+  backup_bgp_remote_as_num  = "65201"
+  pre_shared_key            = "testtest"
+  backup_pre_shared_key     = "testtest"
+  local_tunnel_cidr         = "169.254.160.65/30,169.254.160.69/30"
+  remote_tunnel_cidr        = "169.254.160.66/30,169.254.160.70/30"
+  backup_local_tunnel_cidr  = "169.254.160.73/30,169.254.160.77/30"
+  backup_remote_tunnel_cidr = "169.254.160.74/30,169.254.160.78/30"
+  ha_enabled                = true
+}
+
 
 
 #---------------------------------------------------------- CHINA ----------------------------------------------------------
@@ -81,35 +96,10 @@ module "transit-peering-cn-1" {
 }
 
 
-
-
-
-resource "aviatrix_transit_external_device_conn" "Alibaba-UK-to-CN-CEN" {
-  vpc_id                    = module.ali_transit_eu_1.vpc.vpc_id
-  connection_name           = "Alibaba-Frankfurt-to-beijing-CEN"
-  gw_name                   = module.ali_transit_eu_1.transit_gateway.gw_name
-  connection_type           = "bgp"
-  direct_connect            = true
-  backup_direct_connect     = true
-  remote_gateway_ip         = module.ali_transit_cn_1.transit_gateway.private_ip
-  backup_remote_gateway_ip  = module.ali_transit_cn_1.transit_gateway.ha_private_ip
-  bgp_local_as_num          = "65101"
-  bgp_remote_as_num         = "65201"
-  backup_bgp_remote_as_num  = "65201"
-  pre_shared_key            = "testtest"
-  backup_pre_shared_key     = "testtest"
-  local_tunnel_cidr         = "169.254.160.65/30,169.254.160.69/30"
-  remote_tunnel_cidr        = "169.254.160.66/30,169.254.160.70/30"
-  backup_local_tunnel_cidr  = "169.254.160.73/30,169.254.160.77/30"
-  backup_remote_tunnel_cidr = "169.254.160.74/30,169.254.160.78/30"
-  ha_enabled                = true
-}
-
-
 resource "aviatrix_transit_external_device_conn" "Alibaba-CN-to-UK-CEN" {
   provider                  = aviatrix.china
   vpc_id                    = module.ali_transit_cn_1.vpc.vpc_id
-  connection_name           = "Alibaba-beijing-to-Frankfurt-CEN"
+  connection_name           = "Alibaba-beijing-to-london-CEN"
   gw_name                   = module.ali_transit_cn_1.transit_gateway.gw_name
   connection_type           = "bgp"
   direct_connect            = true
