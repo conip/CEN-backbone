@@ -2,7 +2,7 @@ terraform {
   cloud {
     organization = "CONIX"
     workspaces {
-      name = "CEN-backbone"
+      name = "China-LAB"
     }
   }
   required_providers {
@@ -20,7 +20,6 @@ terraform {
     }
     alicloud = {
       source  = "aliyun/alicloud"
-      version = "1.154.0"
     }
   }
 }
