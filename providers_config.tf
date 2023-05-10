@@ -11,6 +11,7 @@ provider "aws" {
 
 provider "alicloud" {
   # Configuration options
+  region = var.eu_alicloud_region
 }
 provider "azurerm" {
   # credentials passed via TF Cloud ENV
